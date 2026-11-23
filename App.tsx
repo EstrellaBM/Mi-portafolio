@@ -15,11 +15,9 @@ import {
   ImageSourcePropType,
   Dimensions,
 } from "react-native";
-// 👇 1. PON AQUÍ LA RUTA DE LA IMAGEN GRANDE DE TU CV (para visualizarlo)
+
 const IMAGEN_CV: ImageSourcePropType = require("./assets/cv_preview.jpg");
 
-// 👇 2. PON AQUÍ LA RUTA DE TU PDF (para descargarlo/abrirlo)
-// Si aún no configuras .pdf en metro.config.js, puedes dejarlo en null temporalmente
 const RUTA_CV_PDF: number | null = require("./assets/cv.pdf");
 
 type Proyecto = {
