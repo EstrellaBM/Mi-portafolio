@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import {
   View,
   Text,
+  TextInput,
   Image,
   ScrollView,
   StyleSheet,
@@ -13,27 +14,30 @@ import {
   Alert,
   LayoutChangeEvent,
   ImageSourcePropType,
-  Dimensions,
+  useWindowDimensions,
 } from "react-native";
 
 const IMAGEN_CV: ImageSourcePropType = require("./assets/cv_preview.jpg");
-
-const RUTA_CV_PDF: number | null = require("./assets/cv.pdf");
+const URL_CORREO_OFICIAL = "https://mail.google.com";
 
 type Proyecto = {
-  id: number;
-  nombre: string;
-  descripcionCorta: string;
+  id: string;
+  name: string;
+  description: string;
   descripcionCompleta: string;
-  imagen: ImageSourcePropType;
-  tecnologías: string[];
+  image: ImageSourcePropType;
+  technologies: string[];
+  url: string;
 };
 
 type SeccionKey = "inicio" | "proyectos" | "cv" | "contactos";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
 export default function App() {
+  const { width, height } = useWindowDimensions();
+  const isTablet = width >= 768;
+  const isLargeScreen = width >= 1024;
+  const isLandscape = width > height;
+
   const scrollViewRef = useRef<React.ElementRef<typeof ScrollView> | null>(
     null,
   );
@@ -46,18 +50,19 @@ export default function App() {
 
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [seccionActiva, setSeccionActiva] = useState<SeccionKey>("inicio");
+  const [selectedSection, setSelectedSection] = useState<string>("home");
+  const [selectedProject, setSelectedProject] = useState<Proyecto | null>(null);
   const [modalProyectoVisible, setModalProyectoVisible] = useState(false);
-  const [proyectoSeleccionado, setProyectoSeleccionado] =
-    useState<Proyecto | null>(null);
   const [modalCvImagenVisible, setModalCvImagenVisible] = useState(false);
-  const [descargandoCv, setDescargandoCv] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
 
   const persona = {
     nombre: "Estrella Briones Moncada",
     profesión: "Software Development Engineer",
     descripción:
-      "Apasionada por la tecnología, la arquitectura de software y el desarrollo móvil/web. Enfoque en crear soluciones digitales intuitivas y eficientes.",
+      "Apasionada por la tecnología, la arquitectura de software y el desarrollo de aplicaciones. Enfoque en crear soluciones digitales intuitivas y eficientes.",
     correo: "brestrella555@gmail.com",
+    correoWeb: URL_CORREO_OFICIAL,
     github: "https://github.com/estrellabm",
     linkedin: "https://linkedin.com/in/estrellabriones",
     ubicación: "México",
@@ -85,44 +90,72 @@ export default function App() {
     "Figma (UI/UX)",
   ];
 
-  const proyectos: Proyecto[] = [
+  const projects: Proyecto[] = [
     {
-      id: 1,
-      nombre: "Memori App",
-      descripcionCorta: "Asistente digital de recuerdos y notas personales.",
+      id: "1",
+      name: "Memori App",
+      description: "Asistente digital de recuerdos y notas personales.",
       descripcionCompleta:
         "Memori es una aplicación móvil diseñada para registrar y recordar vivencias personales, notas y fotografías utilizando reconocimiento de voz y almacenamiento seguro. Desarrollada con React Native y TypeScript.",
-      imagen: require("./assets/memori.png"),
-      tecnologías: ["React Native", "TypeScript", "Expo", "Voice API"],
+      image: require("./assets/memori.png"),
+      technologies: ["React Native", "TypeScript", "Expo", "Voice API"],
+      url: "https://github.com/estrellabm/memori-app",
     },
     {
-      id: 2,
-      nombre: "Sistema de Inventario MPCC",
-      descripcionCorta: "Plataforma web para gestión de inventarios.",
+      id: "2",
+      name: "Sistema de Inventario MPCC",
+      description: "Plataforma web para gestión de inventarios.",
       descripcionCompleta:
         "Sistema integral de control de inventarios desarrollado para Mantenimientos Preventivos y Correctivos Cortez. Facilita el rastreo de herramientas, repuestos y la gestión de órdenes de trabajo en tiempo real.",
-      imagen: require("./assets/inventario.png"),
-      tecnologías: ["React", "JavaScript", "PostgreSQL", "HTML/CSS"],
+      image: require("./assets/inventario.png"),
+      technologies: ["React", "JavaScript", "PostgreSQL", "HTML/CSS"],
+      url: "https://github.com/estrellabm/inventario-mpcc",
     },
     {
-      id: 3,
-      nombre: "Hospital Management",
-      descripcionCorta: "Gestión y agendamiento de citas médicas.",
+      id: "3",
+      name: "Hospital Management",
+      description: "Gestión y agendamiento de citas médicas.",
       descripcionCompleta:
         "Aplicación móvil para la administración de consultas hospitalarias. Permite a los pacientes agendar citas con especialistas, consultar historiales y recibir notificaciones de seguimiento.",
-      imagen: require("./assets/hospital.png"),
-      tecnologías: ["React Native", "Expo", "UI Design"],
+      image: require("./assets/hospital.png"),
+      technologies: ["React Native", "Expo", "UI Design"],
+      url: "https://github.com/estrellabm/hospital-management",
     },
     {
-      id: 4,
-      nombre: "To-Do List Manager",
-      descripcionCorta: "Administrador de tareas académicas.",
+      id: "4",
+      name: "Agenda",
+      description: "Aplicacion sobre un todolist.",
       descripcionCompleta:
-        "Herramienta móvil enfocada en la productividad estudiantil. Organiza entregas, proyectos universitarios y tareas diarias mediante recordatorios y priorización de pendientes.",
-      imagen: require("./assets/todo.png"),
-      tecnologías: ["React Native", "TypeScript"],
+        "Esta aplicacion es muy util para llevar un control de tareas y actividades teniendo todoa la mano y de manera facil",
+      image: require("./assets/todo.png"),
+      technologies: ["React Native", "TypeScript"],
+      url: "https://github.com/estrellabm/mi-primera-aplicacion",
+    },
+    {
+      id: "5",
+      name: "Mi primera aplicación",
+      description:
+        "Aplicación desarrollada durante el curso de desarrollo móvil.",
+      descripcionCompleta:
+        "Proyecto creado durante el curso de desarrollo móvil para practicar componentes, navegación, estados y diseño de interfaces en React Native con TypeScript.",
+      image: require("./assets/porfolio.png"),
+      technologies: ["React Native", "TypeScript"],
+      url: "https://github.com/estrellabm/mi-primera-aplicacion",
     },
   ];
+
+  const proyectosFiltrados = projects.filter((proyecto) =>
+    proyecto.name.toLowerCase().includes(busqueda.trim().toLowerCase()),
+  );
+
+  const limpiarBusqueda = (): void => {
+    setBusqueda("");
+  };
+
+  const navigate = (section: string): void => {
+    setSelectedSection(section);
+    setSelectedProject(null);
+  };
 
   const registrarPosicion =
     (seccion: SeccionKey) => (event: LayoutChangeEvent) => {
@@ -131,6 +164,7 @@ export default function App() {
 
   const navegarASeccion = (seccion: SeccionKey): void => {
     setSeccionActiva(seccion);
+    navigate(seccion);
     setMenuAbierto(false);
 
     const destinoY = sectionOffsets.current[seccion] ?? 0;
@@ -153,55 +187,43 @@ export default function App() {
     setModalCvImagenVisible(true);
   };
 
-  const handleDescargarCv = async (): Promise<void> => {
-    try {
-      setDescargandoCv(true);
-
-      if (!RUTA_CV_PDF) {
-        Alert.alert(
-          "PDF no configurado",
-          "Coloca tu archivo cv.pdf en ./assets/ y configura RUTA_CV_PDF para descargarlo.",
-        );
-        return;
-      }
-
-      Alert.alert(
-        "CV en PDF",
-        "El PDF está disponible en el proyecto, pero se requiere configurar expo-asset para abrirlo desde la aplicación.",
-      );
-    } catch (error) {
-      console.error("Error al descargar/abrir CV PDF:", error);
-      Alert.alert(
-        "Aviso",
-        "Asegúrate de tener configurado .pdf en metro.config.js y reiniciar con npx expo start -c.",
-      );
-    } finally {
-      setDescargandoCv(false);
-    }
-  };
-
   const verDetalleProyecto = (proyecto: Proyecto): void => {
-    setProyectoSeleccionado(proyecto);
+    setSelectedProject(proyecto);
     setModalProyectoVisible(true);
   };
 
   const cerrarModalProyecto = (): void => {
     setModalProyectoVisible(false);
-    setProyectoSeleccionado(null);
+    setSelectedProject(null);
   };
 
-  const anchoImagenCv = Math.min(SCREEN_WIDTH - 48, 780);
-  const altoImagenCv = Math.max(SCREEN_HEIGHT * 1.15, anchoImagenCv * 1.35);
+  const horizontalPadding = isLargeScreen ? 32 : isTablet ? 24 : 18;
+  const projectColumns = isLargeScreen ? 3 : isTablet ? 2 : 1;
+  const projectCardWidth =
+    projectColumns === 1 ? "100%" : `${Math.floor(100 / projectColumns) - 2}%`;
+
+  const altoImagenModalProyecto = isTablet ? 175 : isLandscape ? 105 : 135;
+
+  const anchoImagenCv = Math.min(width - horizontalPadding * 2 - 20, 820);
+  const altoImagenCv = isLandscape
+    ? Math.max(height * 1.4, anchoImagenCv * 1.35)
+    : Math.max(height * 1.15, anchoImagenCv * 1.35);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
 
       <View style={styles.screenWrapper}>
-        {/* BARRA SUPERIOR FIJA VISIBLE EN CUALQUIER APARTADO */}
-        <View style={styles.stickyNavbar}>
+        <View
+          style={[
+            styles.stickyNavbar,
+            { paddingHorizontal: horizontalPadding },
+          ]}
+        >
           <View>
-            <Text style={styles.navbarBrand}>PORTAFOLIO</Text>
+            <Text style={[styles.navbarBrand, isTablet && { fontSize: 18 }]}>
+              PORTAFOLIO
+            </Text>
             <Text style={styles.navbarSub}>Desarrollo de Software</Text>
           </View>
 
@@ -216,9 +238,8 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        {/* MENÚ DESPLEGABLE FLOTANTE */}
         {menuAbierto && (
-          <View style={styles.floatingDropdown}>
+          <View style={[styles.floatingDropdown, { right: horizontalPadding }]}>
             {seccionesMenu.map((item, idx) => {
               const activa = seccionActiva === item.key;
               const esUltimo = idx === seccionesMenu.length - 1;
@@ -263,38 +284,73 @@ export default function App() {
             if (menuAbierto) setMenuAbierto(false);
           }}
         >
-          {/* BANNER INICIO */}
           <View
-            style={styles.heroBanner}
+            style={[
+              styles.heroBanner,
+              { paddingHorizontal: horizontalPadding },
+            ]}
             onLayout={registrarPosicion("inicio")}
           >
-            <Text style={styles.heroTitle}>{persona.nombre}</Text>
-            <Text style={styles.heroSubtitle}>{persona.profesión}</Text>
+            <Text style={[styles.heroTitle, isTablet && { fontSize: 25 }]}>
+              {persona.nombre}
+            </Text>
+            <Text style={[styles.heroSubtitle, isTablet && { fontSize: 15 }]}>
+              {persona.profesión}
+            </Text>
           </View>
 
-          {/* PERFIL */}
-          <View style={styles.profileCard}>
+          <View
+            style={[
+              styles.profileCard,
+              { marginHorizontal: horizontalPadding },
+              isLandscape && !isTablet && styles.profileCardLandscape,
+            ]}
+          >
             <Image
               source={require("./assets/me.jpeg")}
-              style={styles.photo}
+              style={[
+                styles.photo,
+                isTablet && { width: 124, height: 124, borderRadius: 62 },
+              ]}
               resizeMode="cover"
             />
 
-            <View style={styles.badge}>
-              <Text style={styles.profession}>{persona.profesión}</Text>
-            </View>
+            <View
+              style={
+                isLandscape && !isTablet
+                  ? styles.profileTextCol
+                  : { alignItems: "center" }
+              }
+            >
+              <View style={styles.badge}>
+                <Text style={styles.profession}>{persona.profesión}</Text>
+              </View>
 
-            <Text style={styles.description}>{persona.descripción}</Text>
+              <Text
+                style={[
+                  styles.description,
+                  isLandscape && !isTablet && { textAlign: "left" },
+                ]}
+              >
+                {persona.descripción}
+              </Text>
+            </View>
           </View>
 
-          {/* INFORMACIÓN PERSONAL */}
-          <View style={styles.section}>
+          <View
+            style={[styles.section, { marginHorizontal: horizontalPadding }]}
+          >
             <Text style={styles.title}>Información Personal</Text>
 
             <View style={styles.infoCard}>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Correo</Text>
-                <Text style={styles.infoText}>{persona.correo}</Text>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => abrirEnlace(persona.correoWeb)}
+                >
+                  <Text style={styles.infoLinkText}>{persona.correo}</Text>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.infoDivider} />
@@ -306,8 +362,9 @@ export default function App() {
             </View>
           </View>
 
-          {/* HABILIDADES */}
-          <View style={styles.section}>
+          <View
+            style={[styles.section, { marginHorizontal: horizontalPadding }]}
+          >
             <Text style={styles.title}>Tecnologías y Habilidades</Text>
 
             <View style={styles.skillsContainer}>
@@ -319,82 +376,112 @@ export default function App() {
             </View>
           </View>
 
-          {/* PROYECTOS */}
           <View
-            style={styles.section}
+            style={[styles.section, { marginHorizontal: horizontalPadding }]}
             onLayout={registrarPosicion("proyectos")}
           >
-            <Text style={styles.title}>Proyectos Realizados</Text>
+            <Text style={styles.title}>Busca tus proyectos</Text>
 
             <Text style={styles.instructionText}>
-              Selecciona cualquier proyecto para consultar su detalle.
+              Busca los proyectos por nombre.
             </Text>
 
-            {proyectos.map((proyecto) => (
-              <TouchableOpacity
-                key={proyecto.id}
-                style={styles.projectCard}
-                activeOpacity={0.75}
-                onPress={() => verDetalleProyecto(proyecto)}
-              >
-                <View style={styles.projectHeaderRow}>
-                  <Text style={styles.projectName}>{proyecto.nombre}</Text>
-                  <Text style={styles.openText}>Ver detalle</Text>
-                </View>
+            <View style={styles.searchWrapper}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Buscar proyecto por nombre..."
+                placeholderTextColor="#9CA3AF"
+                value={busqueda}
+                onChangeText={setBusqueda}
+                autoCorrect={false}
+                clearButtonMode="never"
+              />
+              {busqueda.length > 0 && (
+                <TouchableOpacity
+                  style={styles.clearSearchButton}
+                  activeOpacity={0.8}
+                  onPress={limpiarBusqueda}
+                >
+                  <Text style={styles.clearSearchText}>Limpiar</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
-                <Text style={styles.projectDescription}>
-                  {proyecto.descripcionCorta}
+            {proyectosFiltrados.length === 0 ? (
+              <View style={styles.emptyStateCard}>
+                <Text style={styles.emptyStateText}>
+                  No se encontraron proyectos
                 </Text>
-
-                <View style={styles.techTagsContainer}>
-                  {proyecto.tecnologías.map((tech, index) => (
-                    <View key={index} style={styles.techTag}>
-                      <Text style={styles.techTagText}>{tech}</Text>
+                <TouchableOpacity
+                  style={styles.emptyResetButton}
+                  activeOpacity={0.8}
+                  onPress={limpiarBusqueda}
+                >
+                  <Text style={styles.emptyResetText}>Mostrar todos</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.projectsGrid}>
+                {proyectosFiltrados.map((proyecto) => (
+                  <TouchableOpacity
+                    key={proyecto.id}
+                    style={[
+                      styles.projectCard,
+                      projectColumns > 1 && { width: projectCardWidth },
+                    ]}
+                    activeOpacity={0.75}
+                    onPress={() => verDetalleProyecto(proyecto)}
+                  >
+                    <View style={styles.projectHeaderRow}>
+                      <Text style={styles.projectName}>{proyecto.name}</Text>
+                      <Text style={styles.openText}>Ver detalle</Text>
                     </View>
-                  ))}
-                </View>
-              </TouchableOpacity>
-            ))}
+
+                    <Text style={styles.projectDescription}>
+                      {proyecto.description}
+                    </Text>
+
+                    <View style={styles.techTagsContainer}>
+                      {proyecto.technologies.map((tech, index) => (
+                        <View key={index} style={styles.techTag}>
+                          <Text style={styles.techTagText}>{tech}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
 
-          {/* CURRÍCULUM VITAE (CV) */}
-          <View style={styles.section} onLayout={registrarPosicion("cv")}>
+          <View
+            style={[styles.section, { marginHorizontal: horizontalPadding }]}
+            onLayout={registrarPosicion("cv")}
+          >
             <Text style={styles.title}>Currículum Vitae</Text>
 
             <View style={styles.cvCard}>
               <Text style={styles.cvCardTitle}>Hoja de Vida Profesional</Text>
               <Text style={styles.cvCardSubtitle}>
-                Visualiza el documento completo en imagen o descarga el PDF.
+                Visualiza el documento completo en imagen.
               </Text>
 
               <Text style={styles.cvSummary}>{persona.formación}</Text>
 
               <View style={styles.cvButtonsRow}>
                 <TouchableOpacity
-                  style={styles.cvButtonView}
+                  style={styles.cvButtonViewFull}
                   activeOpacity={0.85}
                   onPress={handleVerCv}
                 >
                   <Text style={styles.cvButtonViewText}>Ver CV</Text>
                 </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.cvButtonDownload}
-                  activeOpacity={0.85}
-                  disabled={descargandoCv}
-                  onPress={handleDescargarCv}
-                >
-                  <Text style={styles.cvButtonDownloadText}>
-                    {descargandoCv ? "Abriendo..." : "Descargar CV"}
-                  </Text>
-                </TouchableOpacity>
               </View>
             </View>
           </View>
 
-          {/* CONTACTO */}
           <View
-            style={styles.section}
+            style={[styles.section, { marginHorizontal: horizontalPadding }]}
             onLayout={registrarPosicion("contactos")}
           >
             <Text style={styles.title}>Contacto y Redes</Text>
@@ -402,9 +489,9 @@ export default function App() {
             <View style={styles.contactButtonsContainer}>
               <TouchableOpacity
                 style={styles.buttonPrimary}
-                onPress={() => abrirEnlace(`mailto:${persona.correo}`)}
+                onPress={() => abrirEnlace(persona.correoWeb)}
               >
-                <Text style={styles.buttonText}>Enviar Correo</Text>
+                <Text style={styles.buttonText}>Enviar Mensaje</Text>
               </TouchableOpacity>
 
               <View style={styles.socialButtonsRow}>
@@ -425,16 +512,14 @@ export default function App() {
             </View>
           </View>
 
-          {/* FOOTER */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>2026 • {persona.nombre}</Text>
           </View>
         </ScrollView>
       </View>
 
-      {/* MODAL DE PROYECTOS CON BOTÓN X */}
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={modalProyectoVisible}
         onRequestClose={cerrarModalProyecto}
@@ -445,15 +530,17 @@ export default function App() {
           onPress={cerrarModalProyecto}
         >
           <TouchableOpacity
-            style={styles.modalContent}
+            style={[
+              styles.modalContent,
+              isTablet
+                ? { maxWidth: 720, maxHeight: "92%" }
+                : { maxHeight: "94%" },
+            ]}
             activeOpacity={1}
             onPress={(e) => e.stopPropagation()}
           >
-            {proyectoSeleccionado !== null && (
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.modalScrollContainer}
-              >
+            {selectedProject !== null && (
+              <View style={styles.modalInner}>
                 <View style={styles.projectModalTopBar}>
                   <Text style={styles.projectModalHeaderTitle}>
                     Detalle del Proyecto
@@ -467,18 +554,21 @@ export default function App() {
                   </TouchableOpacity>
                 </View>
 
-                <Image
-                  source={proyectoSeleccionado.imagen}
-                  style={styles.modalImage}
-                  resizeMode="cover"
-                />
+                <View style={styles.modalImageFrame}>
+                  <Image
+                    source={selectedProject.image}
+                    style={[
+                      styles.modalImage,
+                      { height: altoImagenModalProyecto },
+                    ]}
+                    resizeMode="contain"
+                  />
+                </View>
 
-                <Text style={styles.modalTitle}>
-                  {proyectoSeleccionado.nombre}
-                </Text>
+                <Text style={styles.modalTitle}>{selectedProject.name}</Text>
 
                 <View style={styles.techTagsContainer}>
-                  {proyectoSeleccionado.tecnologías.map((tech, index) => (
+                  {selectedProject.technologies.map((tech, index) => (
                     <View key={index} style={styles.techTag}>
                       <Text style={styles.techTagText}>{tech}</Text>
                     </View>
@@ -486,25 +576,15 @@ export default function App() {
                 </View>
 
                 <Text style={styles.modalSubTitle}>Descripción General</Text>
-
                 <Text style={styles.modalDescription}>
-                  {proyectoSeleccionado.descripcionCompleta}
+                  {selectedProject.descripcionCompleta}
                 </Text>
-
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={cerrarModalProyecto}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.closeButtonText}>Cerrar</Text>
-                </TouchableOpacity>
-              </ScrollView>
+              </View>
             )}
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
 
-      {/* MODAL GRANDE DE IMAGEN DEL CV */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -512,7 +592,7 @@ export default function App() {
         onRequestClose={() => setModalCvImagenVisible(false)}
       >
         <View style={styles.cvFullOverlay}>
-          <View style={styles.cvFullCard}>
+          <View style={[styles.cvFullCard, isTablet && { maxWidth: 880 }]}>
             <View style={styles.cvFullTopBar}>
               <Text style={styles.cvFullTitle}>Currículum Vitae</Text>
               <TouchableOpacity
@@ -535,19 +615,11 @@ export default function App() {
                   styles.cvFullImage,
                   { width: anchoImagenCv, height: altoImagenCv },
                 ]}
-                resizeMode="stretch"
+                resizeMode="contain"
               />
             </ScrollView>
 
             <View style={styles.cvFullBottomActions}>
-              <TouchableOpacity
-                style={styles.cvButtonDownload}
-                activeOpacity={0.85}
-                onPress={handleDescargarCv}
-              >
-                <Text style={styles.cvButtonDownloadText}>Descargar CV</Text>
-              </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.cvFullCloseButton}
                 activeOpacity={0.85}
@@ -563,10 +635,6 @@ export default function App() {
   );
 }
 
-// ==========================================
-// ESTILOS PLANOS Y ELEGANTES
-// ==========================================
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -578,7 +646,6 @@ const styles = StyleSheet.create({
   },
   stickyNavbar: {
     backgroundColor: "#4C1D95",
-    paddingHorizontal: 18,
     paddingVertical: 14,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -614,7 +681,6 @@ const styles = StyleSheet.create({
   floatingDropdown: {
     position: "absolute",
     top: 68,
-    right: 18,
     width: 210,
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
@@ -660,7 +726,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#4C1D95",
     paddingTop: 18,
     paddingBottom: 46,
-    paddingHorizontal: 20,
     alignItems: "center",
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
@@ -679,7 +744,6 @@ const styles = StyleSheet.create({
   },
   profileCard: {
     backgroundColor: "#FFFFFF",
-    marginHorizontal: 18,
     marginTop: -28,
     marginBottom: 20,
     padding: 22,
@@ -687,6 +751,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#E9D5FF",
+  },
+  profileCardLandscape: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 18,
+  },
+  profileTextCol: {
+    flex: 1,
+    alignItems: "flex-start",
   },
   photo: {
     width: 108,
@@ -715,7 +788,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   section: {
-    marginHorizontal: 18,
     marginBottom: 22,
   },
   title: {
@@ -728,6 +800,62 @@ const styles = StyleSheet.create({
     color: "#6D28D9",
     fontSize: 12,
     marginBottom: 12,
+  },
+  searchWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 14,
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#DDD6FE",
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    fontSize: 14,
+    color: "#2E1065",
+  },
+  clearSearchButton: {
+    backgroundColor: "#EDE9FE",
+    borderWidth: 1,
+    borderColor: "#C4B5FD",
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+  },
+  clearSearchText: {
+    color: "#5B21B6",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  emptyStateCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#E9D5FF",
+    padding: 20,
+    alignItems: "center",
+    gap: 12,
+  },
+  emptyStateText: {
+    color: "#4B5563",
+    fontSize: 14,
+    fontStyle: "italic",
+    textAlign: "center",
+  },
+  emptyResetButton: {
+    backgroundColor: "#6D28D9",
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 12,
+  },
+  emptyResetText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "600",
   },
   infoCard: {
     backgroundColor: "#FFFFFF",
@@ -742,6 +870,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
     paddingVertical: 6,
   },
   infoLabel: {
@@ -753,6 +883,12 @@ const styles = StyleSheet.create({
     color: "#374151",
     fontSize: 14,
     fontWeight: "500",
+  },
+  infoLinkText: {
+    color: "#5B21B6",
+    fontSize: 14,
+    fontWeight: "600",
+    textDecorationLine: "underline",
   },
   infoDivider: {
     height: 1,
@@ -778,11 +914,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "600",
   },
+  projectsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 12,
+  },
   projectCard: {
     backgroundColor: "#FFFFFF",
     padding: 18,
     borderRadius: 16,
-    marginBottom: 12,
     borderWidth: 1,
     borderColor: "#E9D5FF",
     borderLeftWidth: 4,
@@ -792,6 +933,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: 8,
   },
   projectName: {
     flex: 1,
@@ -813,7 +955,7 @@ const styles = StyleSheet.create({
   techTagsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginTop: 10,
+    marginTop: 8,
     gap: 6,
   },
   techTag: {
@@ -854,12 +996,10 @@ const styles = StyleSheet.create({
     color: "#4B5563",
   },
   cvButtonsRow: {
-    flexDirection: "row",
-    gap: 10,
     marginTop: 16,
   },
-  cvButtonView: {
-    flex: 1,
+  cvButtonViewFull: {
+    width: "100%",
     backgroundColor: "#5B21B6",
     paddingVertical: 13,
     borderRadius: 13,
@@ -867,20 +1007,6 @@ const styles = StyleSheet.create({
   },
   cvButtonViewText: {
     color: "#FFFFFF",
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  cvButtonDownload: {
-    flex: 1,
-    backgroundColor: "#FAF5FF",
-    borderWidth: 1,
-    borderColor: "#7C3AED",
-    paddingVertical: 13,
-    borderRadius: 13,
-    alignItems: "center",
-  },
-  cvButtonDownloadText: {
-    color: "#5B21B6",
     fontWeight: "600",
     fontSize: 14,
   },
@@ -901,10 +1027,12 @@ const styles = StyleSheet.create({
   },
   socialButtonsRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
   },
   buttonSecondary: {
     flex: 1,
+    minWidth: 130,
     backgroundColor: "#FFFFFF",
     borderColor: "#8B5CF6",
     borderWidth: 1,
@@ -930,25 +1058,24 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(30, 10, 60, 0.55)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 14,
   },
   modalContent: {
     width: "100%",
-    maxHeight: "84%",
     backgroundColor: "#FFFFFF",
     borderRadius: 22,
     borderWidth: 1,
     borderColor: "#E9D5FF",
     overflow: "hidden",
   },
-  modalScrollContainer: {
-    padding: 20,
+  modalInner: {
+    padding: 18,
   },
   projectModalTopBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 14,
+    marginBottom: 10,
   },
   projectModalHeaderTitle: {
     fontSize: 14,
@@ -970,29 +1097,37 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
   },
+  modalImageFrame: {
+    backgroundColor: "#F5F3FF",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#EDE9FE",
+    padding: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
   modalImage: {
     width: "100%",
-    height: 220,
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: 10,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: "700",
     color: "#2E1065",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   modalSubTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700",
     color: "#3B0764",
-    marginTop: 16,
-    marginBottom: 6,
+    marginTop: 12,
+    marginBottom: 4,
   },
   modalDescription: {
     color: "#4B5563",
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 13,
+    lineHeight: 19,
   },
   cvFullOverlay: {
     flex: 1,
@@ -1037,7 +1172,6 @@ const styles = StyleSheet.create({
   },
   cvFullBottomActions: {
     flexDirection: "row",
-    gap: 10,
     padding: 12,
     backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
@@ -1050,16 +1184,9 @@ const styles = StyleSheet.create({
     borderRadius: 13,
     alignItems: "center",
   },
-  closeButton: {
-    backgroundColor: "#6D28D9",
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 18,
-  },
   closeButtonText: {
     color: "#FFFFFF",
     fontWeight: "600",
-    fontSize: 15,
+    fontSize: 14,
   },
 });
